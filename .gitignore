@@ -1,0 +1,78 @@
+# ======================
+# Python general
+# ======================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# ======================
+# Virtual environments
+# ======================
+.venv/
+env/
+venv/
+ENV/
+*.env
+*.venv
+
+# ======================
+# Notebooks & cache
+# ======================
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# ======================
+# System files
+# ======================
+.DS_Store
+Thumbs.db
+
+# ======================
+# Data files
+# ======================
+*.csv
+*.xlsx
+*.xls
+*.pdf
+
+# ======================
+# Image files
+# ======================
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Allow 
+!postings.csv
+!depuradoV1.csv
+
+# ======================
+# Logs / temp files
+# ======================
+*.log
+*.tmp
+*.bak
+
+# ======================
+# Config / IDE
+# ======================
+.vscode/
+.idea/
+*.iml
+
+# ======================
+# Allow key project files
+# ======================
+!*.py
+!*.ipynb
+!README.md
+!.gitignore
+
+#Note: This .gitignore was AI generated
