@@ -3,7 +3,7 @@
   <a href="https://www.palermo.edu"><img src="https://www.palermo.edu/images/header/logo@2x.png" alt="up logo" width="130"></a>
   <a name="Top"></a>
 <br>
-  Analisis de la Informacion y Decision 
+  Analisis de la Informacion y la Decision 
 </h1>
 <br>
 
