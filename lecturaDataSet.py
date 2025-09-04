@@ -3,31 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def main():
-    # Load data from CSV file
-    dfLinkedin = pd.read_csv('postings.csv')
-    dataFrameInfo(dfLinkedin)
-    print(dfLinkedin['location'].unique())
-    dfSelected = selectAttributes(dfLinkedin)
-    dfCleaned = dataCleaning(dfSelected)
+    menu()
 
-    # Manage missing values in String columns
-    dfCleaned["description"] = dfCleaned["description"].fillna("No description provided")
-    dfCleaned["pay_period"] = dfCleaned["pay_period"].fillna("Unknown")
-    dfCleaned["location"] = dfCleaned["location"].fillna("Unknown")
-    dfCleaned["currency"] = dfCleaned["currency"].fillna("Unknown")
-    dfCleaned["compensation_type"] = dfCleaned["compensation_type"].fillna("Unknown")
-
-    # Manage missing values in Numeric columns
-    dfCleaned["views"] = pd.to_numeric(dfCleaned["views"], errors="coerce").fillna(0).astype(int)
-    dfCleaned["applies"] = pd.to_numeric(dfCleaned["applies"], errors="coerce").fillna(0).astype(int)
-
-    # Manage missing values in Date columns
-    date_cols = ["original_listed_time", "closed_time", "listed_time"]
-    for col in date_cols:
-        dfCleaned[col] = pd.to_datetime(dfCleaned[col], errors="coerce")
-    
-    dataFrameInfo(dfCleaned)
-    saveDataFrame(dfCleaned, "depuradoV1.csv")
 
 def selectAttributes(df):
     '''
@@ -84,6 +61,43 @@ def saveDataFrame(df, filename,encoding='utf-8'):
     except Exception as e:
         print(f"Error saving DataFrame to {filename}: {e}")
 
+def columnVtype(df,Vtype):
+    '''
+    Recognize and returns attributes of a specific type in the dataframe.(int,date,String)
+    '''
+    attributes=[]
+    match Vtype:
+        case 'int':
+            Vtype='int64'
+        case 'date':
+            Vtype='datetime64[ns]'
+        case 'String':
+            Vtype='object'
+        case _:
+            print("Invalid type")
+            Vtype=input("Enter a valid type (int, date, String): ")
+            columnVtype(df,Vtype)
+
+    for col in df.columns:
+    # Check if the column's dtype matches the given Vtype
+        if df[col].dtype == Vtype:
+             attributes.append(col)         
+    return attributes
+
+
+def fillMissingValues(df,attributes):
+    '''
+    Fill missing values in the dataframe for specified attributes.
+    '''
+    for e in attributes:
+        if df[e].dtype == 'object':
+            df[e] = df[e].fillna("Unknown")
+        elif df[e].dtype == 'int64':
+            df[e] = pd.to_numeric(df[e], errors="coerce").fillna(0).astype(int)
+        elif df[e].dtype == 'datetime64[ns]':
+             df[e] = pd.to_datetime(df[e], errors="coerce")
+    return df
+
 def Showmenu(op=-1):
     match op:
         case -1:
@@ -92,16 +106,26 @@ def Showmenu(op=-1):
 2. Show DataFrame info
 3. Data Cleaning
 4. Show DataFrame
+5. Save DataFrame
+0. Exit
 ''')
         case 2:
             print(f'''
                   1.All info
                   2. Attributes
                   0. Exit''')
+        case 3:
+            print(f'''
+                  1. Clear NULL and empty values by attribute
+                  2. Fill missing values in String columns
+                  3. Fill missing values in Numeric columns
+                  4. Fill missing values in Date columns
+                  0. Exit
+                  ''')
         case _:
             print("Invalid option")
 
-def option(m=0,n=5):
+def option(m=0,n=6):
     option= input("Select an option: ")
     while option.isdigit()==False and int(option) not in range(m,n):
         print("Invalid option")
@@ -110,17 +134,20 @@ def option(m=0,n=5):
 
 def menu():
     Showmenu()
-    option= option(-1,5)
-    while option!=0:
-        match option:
+    opt=option()
+    while opt!=0:
+        match opt:
             case 1:
                 dfName= input("Enter the DataFrame variable name: ")
+                if dfName[-4:]!=".csv":
+                    dfName+= ".csv"
                 try:
                     df=pd.read_csv(dfName)
+                    print("\nDataFrame loaded successfully!")
                 except Exception as e:
                     print("File name not found or invalid DataFrame variable.")
                     print(f"Error: {e}")
-                    option=1
+                    opt=1
                 
             case 2:
                 Showmenu(2)
@@ -132,35 +159,81 @@ def menu():
                         except Exception as e:
                             print("DataFrame variable not found. Please load a DataFrame first.")
                             print(f"Error: {e}")
-                            option=1
+                            opt=1
                     case 2:
                         try:
                             print(df.columns)
                         except Exception as e:
                             print("DataFrame variable not found. Please load a DataFrame first.")
                             print(f"Error: {e}")
-                            option=1                     
+                            opt=1                     
                     case 0:
                         menu()
             
             case 3:
-                try:
-                    dataCleaning(df)
-                except Exception as e:
-                    print("DataFrame variable not found. Please load a DataFrame first.")
-                    print(f"Error: {e}")
-                    option=1
+                Showmenu(3)
+                suboption = option(0,5)
+                match suboption:
+                    case 1:
+                        try:
+                            dataCleaning(df)
+                        except Exception as e:
+                            print("DataFrame variable not found. Please load a DataFrame first.")
+                            print(f"Error: {e}")
+                            opt=1
+                    case 2:            
+                        try:
+                            attributes=columnVtype(df,'String')
+                            df=fillMissingValues(df,attributes)
+                            print("Missing values filled successfully!")
+
+                        except Exception as e:
+                            print("DataFrame variable not found. Please load a DataFrame first.")
+                            print(f"Error: {e}")
+                            opt=1
+                    case 3:
+                        try:
+                            attributes=columnVtype(df,'int')
+                            df=fillMissingValues(df,attributes)
+                            print("Missing values filled successfully!")
+                            
+                        except Exception as e:
+                            print("DataFrame variable not found. Please load a DataFrame first.")
+                            print(f"Error: {e}")
+                            opt=1
+                    case 4:
+                        try:
+                            attributes=columnVtype(df,'date')
+                            df=fillMissingValues(df,attributes)
+                            print("Missing values filled successfully!")
+                            
+                        except Exception as e:
+                            print("DataFrame variable not found. Please load a DataFrame first.")
+                            print(f"Error: {e}")
+                            opt=1
+               
             case 4:
                 try:
                     dataFrameInfo(df)
                 except Exception as e:
                     print("DataFrame variable not found. Please load a DataFrame first.")
                     print(f"Error: {e}")
-                    option=1
+                    optoption=1
+            case 5:
+                try:
+                    filename= input("Enter the filename to save the DataFrame (with .csv extension): ")
+                    encoding= input("Enter the encoding (utf-8, latin1): ")
+                    if encoding not in ['utf-8','latin1']:
+                        encoding='utf-8'
+                    saveDataFrame(df,filename,encoding)
+                except Exception as e:
+                    print("DataFrame variable not found. Please load a DataFrame first.")
+                    print(f"Error: {e}")
+                    opt=1
             case _:
                 print("Invalid option")
         Showmenu()
-        option= option(-1,5)
+        opt= option(-1,5)
        
 
 main()
