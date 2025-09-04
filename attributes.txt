@@ -1,17 +1,33 @@
-##company_name
-#title
-#description
-#pay_period
-#location
-#views
-#formatted_work_type
-#applies
-#original_listed_time
-#remote_allowed
-#closed_time
-#listed_time
-#sponsored
-#work_type
-#currency
-#compensation_type
-##
+##Selected attributes
+- company_name
+- title
+- description
+- pay_period
+- location
+- views
+- formatted_work_type
+- applies
+- original_listed_time
+- remote_allowed
+- closed_time
+- listed_time
+- sponsored
+- work_type
+- currency
+- compensation_type  
+
+##Numeric attributes
+- views
+- applies
+
+##Alpha numeric attributes
+- description
+- pay_period
+- location
+- currency
+- compensation_type
+
+##Date attributes
+- original_listed_time
+- closed_time
+- listed_time
