@@ -6,6 +6,7 @@ def main():
     # Load data from CSV file
     dfLinkedin = pd.read_csv('postings.csv')
     dataFrameInfo(dfLinkedin)
+    print(dfLinkedin['location'].unique())
     dfSelected = selectAttributes(dfLinkedin)
     dfCleaned = dataCleaning(dfSelected)
 
@@ -82,5 +83,85 @@ def saveDataFrame(df, filename,encoding='utf-8'):
         print(f"DataFrame saved to {filename} successfully!")
     except Exception as e:
         print(f"Error saving DataFrame to {filename}: {e}")
+
+def Showmenu(op=-1):
+    match op:
+        case -1:
+            print(f'''
+1. Load DataFrame
+2. Show DataFrame info
+3. Data Cleaning
+4. Show DataFrame
+''')
+        case 2:
+            print(f'''
+                  1.All info
+                  2. Attributes
+                  0. Exit''')
+        case _:
+            print("Invalid option")
+
+def option(m=0,n=5):
+    option= input("Select an option: ")
+    while option.isdigit()==False and int(option) not in range(m,n):
+        print("Invalid option")
+        option= input("Select a valid option: ")
+    return int(option)
+
+def menu():
+    Showmenu()
+    option= option(-1,5)
+    while option!=0:
+        match option:
+            case 1:
+                dfName= input("Enter the DataFrame variable name: ")
+                try:
+                    df=pd.read_csv(dfName)
+                except Exception as e:
+                    print("File name not found or invalid DataFrame variable.")
+                    print(f"Error: {e}")
+                    option=1
+                
+            case 2:
+                Showmenu(2)
+                suboption= option(0,3)
+                match suboption:
+                    case 1:
+                        try:
+                            dataFrameInfo(df)
+                        except Exception as e:
+                            print("DataFrame variable not found. Please load a DataFrame first.")
+                            print(f"Error: {e}")
+                            option=1
+                    case 2:
+                        try:
+                            print(df.columns)
+                        except Exception as e:
+                            print("DataFrame variable not found. Please load a DataFrame first.")
+                            print(f"Error: {e}")
+                            option=1                     
+                    case 0:
+                        menu()
+            
+            case 3:
+                try:
+                    dataCleaning(df)
+                except Exception as e:
+                    print("DataFrame variable not found. Please load a DataFrame first.")
+                    print(f"Error: {e}")
+                    option=1
+            case 4:
+                try:
+                    dataFrameInfo(df)
+                except Exception as e:
+                    print("DataFrame variable not found. Please load a DataFrame first.")
+                    print(f"Error: {e}")
+                    option=1
+            case _:
+                print("Invalid option")
+        Showmenu()
+        option= option(-1,5)
+       
+
 main()
 
