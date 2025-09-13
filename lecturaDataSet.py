@@ -4,6 +4,35 @@ import matplotlib.pyplot as plt
 
 def main():
     menu()
+location_normalization = {
+    "Greater Philadelphia": ("Philadelphia", "PA"),
+    "United States": (None, None),  # Missing detail
+    "Washington DC": ("Washington", "DC"),
+    "D.C.": ("Washington", "DC"),
+    "NYC": ("New York", "NY"),
+    "Los Angeles Area": ("Los Angeles", "CA"),
+    "Bay Area": ("San Francisco", "CA"),  
+}
+state_dict = {
+    "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
+    "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware",
+    "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "ID": "Idaho",
+    "IL": "Illinois", "IN": "Indiana", "IA": "Iowa", "KS": "Kansas",
+    "KY": "Kentucky", "LA": "Louisiana", "ME": "Maine", "MD": "Maryland",
+    "MA": "Massachusetts", "MI": "Michigan", "MN": "Minnesota", "MS": "Mississippi",
+    "MO": "Missouri", "MT": "Montana", "NE": "Nebraska", "NV": "Nevada",
+    "NH": "New hampshire", "NJ": "New jersey", "NM": "New mexico", "NY": "New york",
+    "NC": "North carolina", "ND": "North dakota", "OH": "Ohio", "OK": "Oklahoma",
+    "OR": "Oregon", "PA": "Pennsylvania", "RI": "Rhode island", "SC": "South carolina",
+    "SD": "South dakota", "TN": "Tennessee", "TX": "Texas", "UT": "Utah",
+    "VT": "Vermont", "VA": "Virginia", "WA": "Washington", "WV": "West virginia",
+    "WI": "Wisconsin", "WY": "Wyoming", "DC": "District of columbia",
+    "PR": "Puerto rico", "GU": "Guam", "VI": "Virgin islands", "AS": "American samoa",
+    "MP": "Northern mariana islands"
+}
+
+
+
 
 
 def selectAttributes(df):
