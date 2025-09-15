@@ -4,7 +4,12 @@ import matplotlib.pyplot as plt
 
 def main():
     menu()
-location_normalization = {
+
+def splitLocation(df):
+    '''
+    Split the 'location' column into 'city' and 'state' using normalization and state dictionary.
+    '''
+    location_normalization = {
     "Greater Philadelphia": ("Philadelphia", "PA"),
     "United States": (None, None),  # Missing detail
     "Washington DC": ("Washington", "DC"),
@@ -13,7 +18,7 @@ location_normalization = {
     "Los Angeles Area": ("Los Angeles", "CA"),
     "Bay Area": ("San Francisco", "CA"),  
 }
-state_dict = {
+    state_dict = {
     "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
     "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware",
     "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "ID": "Idaho",
@@ -30,7 +35,36 @@ state_dict = {
     "PR": "Puerto rico", "GU": "Guam", "VI": "Virgin islands", "AS": "American samoa",
     "MP": "Northern mariana islands"
 }
+    cities, states = [], []
+    
+    for loc in df["location"]:
+        if pd.isna(loc):
+            cities.append(None)
+            states.append(None)
+            
 
+        # Apply normalization mapping if exact match
+        elif loc in location_normalization:
+            city, state = location_normalization[loc]
+            cities.append(city)
+            states.append(state)
+            
+
+        # Standard format: "City, ST"
+        elif "," in loc:
+            city, state_abbr = [x.strip() for x in loc.split(",", 1)]
+            state_full = state_dict.get(state_abbr.upper(), state_abbr)
+            cities.append(city)
+            states.append(state_full)
+        else:
+            cities.append(loc.strip())
+            states.append(None)
+
+    df["city"] = cities
+    df["state"] = states
+    df.drop(columns=["location"], inplace=True)
+
+    return df
 
 
 
@@ -122,10 +156,13 @@ def fillMissingValues(df, attributes):
         if df[e].dtype == 'object':
             df[e] = df[e].fillna("Unknown")
         elif df[e].dtype == 'int64':
-            if (df[e] > 10**12).any(): 
-                df[e] = pd.to_datetime(df[e] / 1000, unit='s', errors="coerce")
+            # Convert Unix timestamps (milliseconds) to datetime
+            df[e] = pd.to_numeric(df[e], errors="coerce")
+            if (df[e] > 10**12).any():
+                df[e] = pd.to_datetime(df[e] // 1000, unit='s', errors="coerce")
             else:
-                df[e] = pd.to_numeric(df[e], errors="coerce").fillna(0).astype(int)
+                df[e] = df[e].fillna(0).astype(int)
+
     return df
 
 def Showmenu(op=-1):
@@ -163,6 +200,18 @@ def option(m=0,n=6):
         option= input("Select a valid option: ")
     return int(option)
 
+def normalizeTimestamps(df, cols):
+    """
+    Convert Unix timestamp columns (in milliseconds) into datetime.
+    """
+    for col in cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+            # Only convert if values look like ms timestamps
+            if (df[col] > 10**12).any():
+                df[col] = pd.to_datetime(df[col] // 1000, unit="s", errors="coerce")
+    return df
+
 def menu():
     Showmenu()
     opt=option()
@@ -174,6 +223,7 @@ def menu():
                     dfName+= ".csv"
                 try:
                     df=pd.read_csv(dfName)
+                    df = normalizeTimestamps(df, ["original_listed_time", "expiry"])
                     print("\nDataFrame loaded successfully!")
                 except Exception as e:
                     print("File name not found or invalid DataFrame variable.")
@@ -253,7 +303,11 @@ def menu():
                
             case 4:
                 try:
-                    dataFrameInfo(df)
+                    att=input("Enter the attribute to display: ")
+                    while att not in df.columns:
+                        print("Attribute not found")
+                        att=input("Enter a valid attribute to display: ")
+                    print(df[att])
                 except Exception as e:
                     print("DataFrame variable not found. Please load a DataFrame first.")
                     print(f"Error: {e}")
@@ -273,7 +327,10 @@ def menu():
                 print("Invalid option")
         Showmenu()
         opt= option(-1,5)
-       
+
+    #df = splitLocation(df)
+    #saveDataFrame(df,"depuradoV1.csv","UTF-8")
+
 
 main()
 

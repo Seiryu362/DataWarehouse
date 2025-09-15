@@ -75,4 +75,8 @@ Thumbs.db
 !README.md
 !.gitignore
 
+# VS Code temporary runner file
+tempCodeRunnerFile*
+
+
 #Note: This .gitignore was AI generated
