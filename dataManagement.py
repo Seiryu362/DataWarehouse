@@ -126,7 +126,7 @@ def saveDataFrame(df, filename,encoding='utf-8'):
 
 def columnVtype(df,Vtype):
     '''
-    Recognize and returns attributes of a specific type in the dataframe.(int,date,String)
+    Recognize and returns attributes of a specific type in the dataframe.(int,date,String,float)
     '''
     attributes=[]
     match Vtype:
@@ -136,9 +136,11 @@ def columnVtype(df,Vtype):
             Vtype='datetime64[ns]'
         case 'String':
             Vtype='object'
+        case "float":
+            Vtype='float64'
         case _:
             print("Invalid type")
-            Vtype=input("Enter a valid type (int, date, String): ")
+            Vtype=input("Enter a valid type (int, date, String,float): ")
             columnVtype(df,Vtype)
 
     for col in df.columns:
@@ -162,6 +164,9 @@ def fillMissingValues(df, attributes):
                 df[e] = pd.to_datetime(df[e] // 1000, unit='s', errors="coerce")
             else:
                 df[e] = df[e].fillna(0).astype(int)
+        elif df[e].dtype == 'float64':
+            # Fill missing float values with 0.0
+            df[e] = df[e].fillna(0.0)
 
     return df
 
@@ -223,7 +228,7 @@ def menu():
                     dfName+= ".csv"
                 try:
                     df=pd.read_csv(dfName)
-                    df = normalizeTimestamps(df, ["original_listed_time", "expiry"])
+                    #df = normalizeTimestamps(df, ["original_listed_time", "expiry"])
                     print("\nDataFrame loaded successfully!")
                 except Exception as e:
                     print("File name not found or invalid DataFrame variable.")
@@ -283,6 +288,8 @@ def menu():
                     case 4:
                         try:
                             attributes=columnVtype(df,'int')
+                            df=fillMissingValues(df,attributes)
+                            attributes=columnVtype(df,'float')
                             df=fillMissingValues(df,attributes)
                             print("Missing values filled successfully!")
                             
