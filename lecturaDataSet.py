@@ -41,14 +41,14 @@ def selectAttributes(df):
     '''
     # Select specific attributes from the dataframe
     selected_columns = []
-    column = input("Enter column name to select (or 'done' to finish): ")
+    column = input("Enter attribute name to select (or 'done' to finish): ")
     
     while column.lower() != 'done':
         if column in df.columns:
             selected_columns.append(column)
         else:
-            print(f"Column '{column}' does not exist in the dataframe.")
-        column = input("Enter column name to select (or 'done' to finish): ")
+            print(f"Attribute '{column}' does not exist in the dataframe.")
+        column = input("Enter attribute name to select (or 'done' to finish): ")
 
     df_selected = df[selected_columns]
     return df_selected
@@ -113,8 +113,8 @@ def columnVtype(df,Vtype):
              attributes.append(col)         
     return attributes
 
-
-def fillMissingValues(df,attributes):
+#FIX DATEVALUES 
+def fillMissingValues(df, attributes):
     '''
     Fill missing values in the dataframe for specified attributes.
     '''
@@ -122,9 +122,10 @@ def fillMissingValues(df,attributes):
         if df[e].dtype == 'object':
             df[e] = df[e].fillna("Unknown")
         elif df[e].dtype == 'int64':
-            df[e] = pd.to_numeric(df[e], errors="coerce").fillna(0).astype(int)
-        elif df[e].dtype == 'datetime64[ns]':
-             df[e] = pd.to_datetime(df[e], errors="coerce")
+            if (df[e] > 10**12).any(): 
+                df[e] = pd.to_datetime(df[e] / 1000, unit='s', errors="coerce")
+            else:
+                df[e] = pd.to_numeric(df[e], errors="coerce").fillna(0).astype(int)
     return df
 
 def Showmenu(op=-1):
@@ -140,15 +141,16 @@ def Showmenu(op=-1):
 ''')
         case 2:
             print(f'''
-                  1.All info
+                  1. All info
                   2. Attributes
                   0. Exit''')
         case 3:
             print(f'''
                   1. Clear NULL and empty values by attribute
-                  2. Fill missing values in String columns
-                  3. Fill missing values in Numeric columns
-                  4. Fill missing values in Date columns
+                  2. Select specific attributes
+                  3. Fill missing values in String columns
+                  4. Fill missing values in Numeric columns
+                  5. Fill missing values in Date columns
                   0. Exit
                   ''')
         case _:
@@ -201,7 +203,7 @@ def menu():
             
             case 3:
                 Showmenu(3)
-                suboption = option(0,5)
+                suboption = option(0,6)
                 match suboption:
                     case 1:
                         try:
@@ -210,7 +212,15 @@ def menu():
                             print("DataFrame variable not found. Please load a DataFrame first.")
                             print(f"Error: {e}")
                             opt=1
-                    case 2:            
+                    case 2:
+                        try:
+                            df=selectAttributes(df)
+                            print("Attributes selected successfully!")
+                        except Exception as e:
+                            print("DataFrame variable not found. Please load a DataFrame first.")
+                            print(f"Error: {e}")
+                            opt=1
+                    case 3:            
                         try:
                             attributes=columnVtype(df,'String')
                             df=fillMissingValues(df,attributes)
@@ -220,7 +230,7 @@ def menu():
                             print("DataFrame variable not found. Please load a DataFrame first.")
                             print(f"Error: {e}")
                             opt=1
-                    case 3:
+                    case 4:
                         try:
                             attributes=columnVtype(df,'int')
                             df=fillMissingValues(df,attributes)
@@ -230,7 +240,7 @@ def menu():
                             print("DataFrame variable not found. Please load a DataFrame first.")
                             print(f"Error: {e}")
                             opt=1
-                    case 4:
+                    case 5:
                         try:
                             attributes=columnVtype(df,'date')
                             df=fillMissingValues(df,attributes)
@@ -247,7 +257,7 @@ def menu():
                 except Exception as e:
                     print("DataFrame variable not found. Please load a DataFrame first.")
                     print(f"Error: {e}")
-                    optoption=1
+                    opt=1
             case 5:
                 try:
                     filename= input("Enter the filename to save the DataFrame (with .csv extension): ")
